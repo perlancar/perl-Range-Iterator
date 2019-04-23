@@ -6,7 +6,7 @@ package Range::Iterator;
 use strict;
 use warnings;
 
-my $re_num = qr/\A[+-]?[0-9]+(\.[0-9]+)?\z/;
+use Scalar::Util qw(looks_like_number);
 
 sub new {
     my $class = shift;
@@ -22,7 +22,7 @@ sub new {
         _cur   => $start,
     };
 
-    if ($start =~ $re_num && $end =~ $re_num) {
+    if (looks_like_number($start) && looks_like_number($end)) {
         $self->{_num}   = 1;
         $self->{_ended}++ if $start > $end;
     } else {
@@ -64,9 +64,14 @@ You can add step:
 
  my $iter = Range::Iterator->new(1, 10, 2); # 1, 3, 5, 7, 9
 
-Anything that can be incremented by Perl is game:
+You can use alphanumeric strings too since C<++> has some extra builtin magic
+(see L<perlop>):
 
-  $iter = Range::Iterator->new("a", "e"); # a, b, c, d, e
+ $iter = Range::Iterator->new("zx", "aab"); # zx, zy, zz, aaa, aab
+
+Infinite list:
+
+ $iter = Range::Iterator->new(1, Inf); # 1, 2, 3, ...
 
 
 =head1 DESCRIPTION
